@@ -1,0 +1,92 @@
+# Reusable "Checks" workflow for all kaiseki/* packages.
+#
+# Each package's .github/workflows/checks.yml is a thin caller that does:
+#   jobs:
+#     checks:
+#       uses: kaisekidev/.github/.github/workflows/checks.yml@v1
+#
+# Keeps the established tooling (shivammathur setup-php, Composer cache,
+# `composer update`, check-deps/cs-check/phpstan, phpunit + coverage-monitor),
+# parameterized over a PHP matrix. Default is strict: phpunit + 100% coverage
+# gate (reported on the 8.4 leg). Packages not yet at full coverage override
+# via `coverage-threshold: 0` or `run-tests: false` in their caller.
+
+name: Checks
+
+on:
+  workflow_call:
+    inputs:
+      php-versions:
+        description: 'JSON array of PHP versions to run against'
+        type: string
+        default: '["8.2","8.3","8.4"]'
+      run-tests:
+        description: 'Run phpunit'
+        type: boolean
+        default: true
+      coverage-threshold:
+        description: 'Coverage gate percentage; 0 disables the gate (per-package override)'
+        type: number
+        default: 100
+      coverage-php:
+        description: 'The single matrix leg that reports/gates coverage'
+        type: string
+        default: '8.4'
+
+permissions:
+  contents: read
+  pull-requests: write   # coverage-monitor posts a PR status/comment
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ${{ fromJSON(inputs.php-versions) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: ${{ inputs.run-tests && 'xdebug' || 'none' }}
+          tools: composer:v2
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-php${{ matrix.php }}-composer-${{ hashFiles('**/composer.json') }}
+          restore-keys: ${{ runner.os }}-php${{ matrix.php }}-composer-
+
+      - name: Install dependencies
+        run: composer update --prefer-dist --no-progress --no-interaction > /dev/null
+
+      - name: Check dependencies
+        run: composer check-deps
+
+      - name: Coding standards
+        run: composer cs-check
+
+      - name: Static analysis
+        run: composer phpstan -- --no-progress
+
+      - name: Tests
+        if: ${{ inputs.run-tests }}
+        run: vendor/bin/phpunit --coverage-clover=coverage.xml --stop-on-failure
+
+      - name: Monitor coverage
+        if: ${{ inputs.run-tests && inputs.coverage-threshold > 0 && matrix.php == inputs.coverage-php && github.event_name == 'pull_request' }}
+        uses: slavcodev/coverage-monitor-action@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          clover_file: coverage.xml
+          threshold_alert: ${{ inputs.coverage-threshold }}
+          threshold_warning: ${{ inputs.coverage-threshold }}
