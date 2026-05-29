@@ -35,7 +35,8 @@ on:
 
 permissions:
   contents: read
-  pull-requests: write   # coverage-monitor posts a PR status/comment
+  pull-requests: write
+  statuses: write        # coverage-monitor sets a commit status
 
 jobs:
   build:
