@@ -1,6 +1,4 @@
-# Kaiseki
-
-Modern, composable building blocks for **WordPress** development in **PHP 8** — plus a handful of framework-agnostic libraries and React tooling for the Block Editor.
+> Modern, composable building blocks for **WordPress** development in **PHP 8** — plus a handful of framework-agnostic libraries and React tooling for the Block Editor.
 
 Everything we ship is small, single-purpose, strictly typed, and installable via Composer or npm. Pick the pieces you need; they're designed to work together but never assume each other.
 
