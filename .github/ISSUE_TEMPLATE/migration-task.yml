@@ -1,0 +1,27 @@
+name: Migration task
+description: A unit of the PHP 8.4 migration effort.
+title: "chore: migrate "
+labels: ["migration"]
+body:
+  - type: textarea
+    id: target
+    attributes:
+      label: Target
+      description: Package and the migration-playbook step this covers.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      value: |
+        - [ ]
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Variant (A/B), known BC concerns, downstream consumers.
+    validations:
+      required: false

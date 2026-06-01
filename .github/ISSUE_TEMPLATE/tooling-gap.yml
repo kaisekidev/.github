@@ -1,0 +1,26 @@
+name: Tooling gap
+description: A missing capability, convention, or backlog item.
+title: "chore: "
+labels: ["tooling-gap"]
+body:
+  - type: textarea
+    id: gap
+    attributes:
+      label: The gap
+      description: What capability or convention is missing today.
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why it matters
+      description: The friction or risk; link the place it bit us.
+    validations:
+      required: true
+  - type: textarea
+    id: sketch
+    attributes:
+      label: Sketch of the fix
+      description: A rough shape — a new bin/*.sh + skill, a doc, a template change.
+    validations:
+      required: false
