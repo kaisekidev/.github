@@ -39,6 +39,34 @@ permissions:
   statuses: write        # coverage-monitor sets a commit status
 
 jobs:
+  editorconfig:
+    # Verify the repo's .editorconfig hasn't drifted from the org canonical
+    # (this repo's root .editorconfig). Rules-only: comment (#/;) and blank lines
+    # are ignored, so a repo may keep its own header comment — only the actual
+    # settings must match. Pinned to @v1, the same ref callers use, so the
+    # workflow and the canonical file version-move together.
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify .editorconfig matches the org canonical
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ ! -f .editorconfig ]; then
+            echo "::error::.editorconfig is missing. Copy it from https://github.com/kaisekidev/.github/blob/v1/.editorconfig"
+            exit 1
+          fi
+          curl -fsSL https://raw.githubusercontent.com/kaisekidev/.github/v1/.editorconfig -o /tmp/canonical.editorconfig
+          # Compare rules only: drop comment (#/;) and blank lines from both sides.
+          norm() { grep -vE '^[[:space:]]*([#;]|$)' "$1" || true; }
+          if ! diff -u <(norm /tmp/canonical.editorconfig) <(norm .editorconfig); then
+            echo "::error::.editorconfig rules drifted from the org canonical (kaisekidev/.github@v1). Reconcile with https://github.com/kaisekidev/.github/blob/v1/.editorconfig"
+            exit 1
+          fi
+          echo "✓ .editorconfig rules match the org canonical."
+
   build:
     runs-on: ubuntu-latest
     strategy:

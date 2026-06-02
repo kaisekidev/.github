@@ -1,12 +1,13 @@
 # kaisekidev/.github
 
-Organization-level repository for **[kaisekidev](https://github.com/kaisekidev)**. It hosts shared GitHub Actions configuration — currently a single reusable **Checks** workflow that every `kaiseki/*` PHP package calls instead of duplicating its own CI.
+Organization-level repository for **[kaisekidev](https://github.com/kaisekidev)**. It hosts shared GitHub configuration — a reusable **Checks** workflow that every `kaiseki/*` PHP package calls instead of duplicating its own CI, and the canonical org **`.editorconfig`**.
 
 ## What's here
 
 | Path | Purpose |
 | --- | --- |
 | [`.github/workflows/checks.yml`](.github/workflows/checks.yml) | Reusable `workflow_call` workflow running the standard lint/static-analysis/test/coverage pipeline. |
+| [`.editorconfig`](.editorconfig) | Canonical org editor settings (PHP 4-space, JS/TS/JSON 2-space, LF, final newline). Copied into each repo. |
 | [`profile/README.md`](profile/README.md) | Organization profile shown on the [org landing page](https://github.com/kaisekidev). |
 
 ## Usage
@@ -37,6 +38,8 @@ Per PHP version in the matrix it:
 4. Runs `composer check-deps`, `composer cs-check`, and `composer phpstan`.
 5. Runs `vendor/bin/phpunit` with Clover coverage (when `run-tests` is enabled).
 6. Reports/gates coverage on the designated PHP leg for pull requests via [`slavcodev/coverage-monitor-action`](https://github.com/slavcodev/coverage-monitor-action).
+
+A separate `editorconfig` job (no PHP, runs once) verifies the caller's `.editorconfig` rules match this repo's canonical [`.editorconfig`](.editorconfig) — see [Editor configuration](#editor-configuration).
 
 The default is **strict**: PHPUnit runs and a **100% coverage gate** is enforced on the `8.4` matrix leg.
 
@@ -76,6 +79,19 @@ The pipeline expects these Composer scripts to exist:
 - `composer phpstan`
 
 …and a PHPUnit setup runnable via `vendor/bin/phpunit` when `run-tests` is on.
+
+## Editor configuration
+
+[`.editorconfig`](.editorconfig) is the canonical org editor baseline. Unlike the
+Checks workflow, EditorConfig has no remote-include mechanism — editors read the
+literal `.editorconfig` in the working tree — so each repo keeps a **copy** rather
+than a reference. Treat this file as the source of truth: when it changes, propagate
+the copy to consuming repos.
+
+Drift is caught in CI: the Checks workflow runs an `editorconfig` job that fetches
+this canonical file (`@v1`) and fails if the caller's `.editorconfig` **rules** have
+drifted. The comparison ignores comment (`#`/`;`) and blank lines, so a repo may keep
+its own header comment — only the actual settings must match.
 
 ## Versioning
 
