@@ -1,12 +1,13 @@
 # kaisekidev/.github
 
-Organization-level repository for **[kaisekidev](https://github.com/kaisekidev)**. It hosts shared GitHub Actions configuration — currently a single reusable **Checks** workflow that every `kaiseki/*` PHP package calls instead of duplicating its own CI.
+Organization-level repository for **[kaisekidev](https://github.com/kaisekidev)**. It hosts shared GitHub configuration — a reusable **Checks** workflow that every `kaiseki/*` PHP package calls instead of duplicating its own CI, and the canonical org **`.editorconfig`**.
 
 ## What's here
 
 | Path | Purpose |
 | --- | --- |
 | [`.github/workflows/checks.yml`](.github/workflows/checks.yml) | Reusable `workflow_call` workflow running the standard lint/static-analysis/test/coverage pipeline. |
+| [`.editorconfig`](.editorconfig) | Canonical org editor settings (PHP 4-space, JS/TS/JSON 2-space, LF, final newline). Copied into each repo. |
 | [`profile/README.md`](profile/README.md) | Organization profile shown on the [org landing page](https://github.com/kaisekidev). |
 
 ## Usage
@@ -76,6 +77,14 @@ The pipeline expects these Composer scripts to exist:
 - `composer phpstan`
 
 …and a PHPUnit setup runnable via `vendor/bin/phpunit` when `run-tests` is on.
+
+## Editor configuration
+
+[`.editorconfig`](.editorconfig) is the canonical org editor baseline. Unlike the
+Checks workflow, EditorConfig has no remote-include mechanism — editors read the
+literal `.editorconfig` in the working tree — so each repo keeps a **copy** rather
+than a reference. Treat this file as the source of truth: when it changes, propagate
+the copy to consuming repos and keep them byte-identical.
 
 ## Versioning
 

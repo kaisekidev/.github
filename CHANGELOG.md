@@ -9,6 +9,7 @@ This repo is consumed by tag, so the major tag (`v1`) is treated as the version 
 
 ### Added
 
+- Canonical org `.editorconfig`, adopted from the retired `kaisekidev/editorconfig` repo. This repo is now its source of truth; consuming repos keep a byte-identical copy.
 - Organization profile (`profile/README.md`) shown on the org's GitHub landing page.
 - Repository `README.md` and this `CHANGELOG.md`.
 
