@@ -12,12 +12,11 @@ on:
   push:
     branches: [master]
 
-# Reusable workflows can only restrict the caller's permissions, never elevate
-# them — and the reusable workflow declares `statuses: write` (for the
-# coverage-monitor commit status) at its top level on EVERY run. So a caller
-# that sets a `permissions:` block MUST include `statuses: write`: a block that
-# omits it grants fewer permissions than the reusable workflow declares, which
-# GitHub rejects with a `startup_failure` before any job runs.
+# Reusable workflows cannot elevate the caller's GITHUB_TOKEN permissions.
+# The caller (or the repo/org default token permissions) sets the maximum; the
+# reusable workflow can only further restrict.
+# Ensure `statuses: write` is granted (coverage-monitor sets a commit status),
+# otherwise the status update will fail at runtime (e.g. 403).
 #
 # Packages that opt out of coverage (run-tests: false or coverage-threshold: 0)
 # don't use the status — but must NOT drop just that one line. Remove the ENTIRE
