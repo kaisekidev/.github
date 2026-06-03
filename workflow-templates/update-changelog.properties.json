@@ -1,0 +1,5 @@
+{
+  "name": "Kaiseki — Update Changelog",
+  "description": "Thin caller of the kaisekidev/.github reusable changelog workflow (update-changelog.yml@v1): on a published Release, updates CHANGELOG.md from the release notes via an auto-merging PR.",
+  "categories": ["PHP"]
+}

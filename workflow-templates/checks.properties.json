@@ -1,0 +1,5 @@
+{
+  "name": "Kaiseki — Checks",
+  "description": "Thin caller of the kaisekidev/.github reusable CI workflow (checks.yml@v1): PHP 8.2/8.3/8.4 matrix running check-deps, cs-check, phpstan, phpunit + coverage gate.",
+  "categories": ["PHP", "Continuous integration"]
+}
