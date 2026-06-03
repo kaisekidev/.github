@@ -18,10 +18,10 @@ on:
 # Ensure `statuses: write` is granted (coverage-monitor sets a commit status),
 # otherwise the status update will fail at runtime (e.g. 403).
 #
-# Packages that opt out of coverage (run-tests: false or coverage-threshold: 0)
-# don't use the status — but must NOT drop just that one line. Remove the ENTIRE
-# `permissions:` block instead, so the reusable workflow's declared permissions
-# apply unrestricted.
+# Even if a repo opts out of coverage gating, it's fine to leave this block as-is.
+# If you remove or tighten permissions here, the reusable workflow cannot regain
+# scopes beyond the caller/repo defaults, so ensure required scopes remain
+# available (notably `pull-requests: write` and `statuses: write`).
 permissions:
   contents: read
   pull-requests: write
