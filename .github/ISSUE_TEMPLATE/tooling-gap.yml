@@ -1,7 +1,7 @@
 name: Tooling gap
 description: A missing capability, convention, or backlog item.
 title: "chore: "
-labels: ["tooling-gap"]
+type: Tooling-gap
 body:
   - type: textarea
     id: gap

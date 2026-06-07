@@ -1,7 +1,7 @@
 name: Bug report
 description: Something is broken or behaves unexpectedly.
 title: "fix: "
-labels: ["type:fix"]
+type: Bug
 body:
   - type: textarea
     id: whats-wrong
