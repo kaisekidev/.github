@@ -24,6 +24,8 @@ permissions:
 
 jobs:
   notify:
+    # Forks can't read the org App secrets — skip there (matches the old copy-in).
+    if: ${{ github.repository_owner == 'kaisekidev' }}
     uses: kaisekidev/.github/.github/workflows/notify-site.yml@v1
     secrets:
       APP_ID: ${{ secrets.APP_ID }}
