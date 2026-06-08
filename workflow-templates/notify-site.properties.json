@@ -1,0 +1,5 @@
+{
+  "name": "Kaiseki — Notify docs site",
+  "description": "Thin caller of the kaisekidev/.github reusable notify-site workflow (notify-site.yml@v1): on push to the default branch and on published Releases, triggers a kaiseki-site docs rebuild.",
+  "categories": ["PHP"]
+}

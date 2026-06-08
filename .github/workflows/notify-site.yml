@@ -1,0 +1,71 @@
+# Reusable "Notify docs site" workflow for all kaiseki/* packages.
+#
+# Each package's .github/workflows/notify-site.yml is a thin caller:
+#   on:
+#     push:
+#       branches: [master, main]
+#     release:
+#       types: [published]
+#   jobs:
+#     notify:
+#       uses: kaisekidev/.github/.github/workflows/notify-site.yml@v1
+#       secrets:
+#         APP_ID: ${{ secrets.APP_ID }}
+#         APP_PRIVATE_KEY: ${{ secrets.APP_PRIVATE_KEY }}
+#
+# On every push to the default branch and on published releases, it tells the
+# kaiseki-site repo to rebuild, so the documentation site reflects the latest
+# README / docs.
+#
+# ── WHY THIS IS CENTRALIZED HERE ─────────────────────────────────────────────
+# The action pin below (create-github-app-token) used to live in a COPY of this
+# workflow in every package repo, so a single bump (e.g. v1→v3) produced one
+# Dependabot PR PER REPO. As a reusable workflow the pin lives in ONE file:
+# Dependabot bumps it here once and thin callers have nothing to bump. Mirrors
+# checks.yml@v1 / update-changelog.yml@v1.
+#
+# ── HOW IT AUTHENTICATES ─────────────────────────────────────────────────────
+# It mints a short-lived token from the org's kaiseki-doc-bot GitHub App, scoped
+# to kaiseki-site, and POSTs a `package-updated` repository_dispatch (kaiseki-site's
+# deploy.yml listens for it). App installation tokens — unlike the Actions
+# GITHUB_TOKEN — are allowed to trigger the downstream build. The only stored
+# credential is the org-level APP_PRIVATE_KEY, forwarded by the caller. The job
+# is guarded to the kaisekidev org so forks (which can't read the secrets) skip it.
+
+name: Notify docs site
+
+on:
+  workflow_call:
+    secrets:
+      APP_ID:
+        required: true
+      APP_PRIVATE_KEY:
+        required: true
+
+# The App token does the dispatch; the workflow's own GITHUB_TOKEN only reads.
+permissions:
+  contents: read
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    if: ${{ github.repository_owner == 'kaisekidev' }}
+    steps:
+      - name: Mint a token scoped to kaiseki-site
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          owner: kaisekidev
+          repositories: kaiseki-site
+
+      - name: Dispatch rebuild of kaiseki-site
+        run: |
+          curl -fsSL --retry 3 --retry-all-errors -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ steps.app-token.outputs.token }}" \
+            -H "Content-Type: application/json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/kaisekidev/kaiseki-site/dispatches \
+            -d '{"event_type":"package-updated","client_payload":{"repo":"${{ github.repository }}","sha":"${{ github.sha }}"}}'

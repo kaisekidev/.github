@@ -1,0 +1,30 @@
+# Thin caller for the shared "Notify docs site" reusable workflow in
+# kaisekidev/.github (.github/workflows/notify-site.yml@v1).
+#
+# On every push to the default branch and on published releases, it asks the
+# kaiseki-site repo to rebuild so the docs site reflects the latest README/docs.
+# All action pins live in the reusable workflow, so there is nothing here for
+# Dependabot to bump.
+#
+# The reusable workflow mints a short-lived kaiseki-doc-bot App token scoped to
+# kaiseki-site, so the App + the APP_ID / APP_PRIVATE_KEY org secrets must be
+# available to the repo (already org-wide). They are forwarded EXPLICITLY below
+# (not `secrets: inherit`), so only those two secrets reach the reusable workflow.
+
+name: Notify docs site
+
+on:
+  push:
+    branches: [master, main]
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  notify:
+    uses: kaisekidev/.github/.github/workflows/notify-site.yml@v1
+    secrets:
+      APP_ID: ${{ secrets.APP_ID }}
+      APP_PRIVATE_KEY: ${{ secrets.APP_PRIVATE_KEY }}
