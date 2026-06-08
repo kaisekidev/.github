@@ -36,6 +36,11 @@ name: Notify docs site
 
 on:
   workflow_call:
+    secrets:
+      APP_ID:
+        required: true
+      APP_PRIVATE_KEY:
+        required: true
 
 # The App token does the dispatch; the workflow's own GITHUB_TOKEN only reads.
 permissions:
