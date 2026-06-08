@@ -1,13 +1,13 @@
 name: Migration task
-description: A unit of the PHP 8.4 migration effort.
+description: A cross-cutting change applied across packages to the same recipe.
 title: "chore: migrate "
-labels: ["migration"]
+type: Migration
 body:
   - type: textarea
     id: target
     attributes:
       label: Target
-      description: Package and the migration-playbook step this covers.
+      description: The packages this covers and the recipe/steps applied.
     validations:
       required: true
   - type: textarea
