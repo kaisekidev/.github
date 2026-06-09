@@ -43,11 +43,14 @@ name: Update Changelog
 
 on:
   workflow_call:
+    # Not required: a fork (which lacks the org secrets) passes empty values, and
+    # the job's owner guard below then skips the job cleanly rather than failing
+    # validation on a missing required secret.
     secrets:
       APP_ID:
-        required: true
+        required: false
       APP_PRIVATE_KEY:
-        required: true
+        required: false
 
 # The App token does the writing; the workflow's own GITHUB_TOKEN only reads.
 permissions:
@@ -55,6 +58,9 @@ permissions:
 
 jobs:
   update:
+    # Skip on forks: the org App secrets aren't available there, so there's
+    # nothing to do and the token mint would fail.
+    if: ${{ github.repository_owner == 'kaisekidev' }}
     runs-on: ubuntu-latest
     steps:
       - name: Generate a token from the kaiseki-doc-bot app
